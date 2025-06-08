@@ -60,13 +60,12 @@ body {
   transform-style: preserve-3d; 
 
 }
-
 .square.light {
-  background: linear-gradient(135deg, #e3e9f7 80%, #b8c6e6 100%);
+  background: linear-gradient(135deg, #f0d9b5 80%, #eed6a7 100%);
 }
 
 .square.dark {
-  background: linear-gradient(135deg, #4a5568 80%, #2d3748 100%);
+  background: linear-gradient(135deg, #b58863 80%, #a0754b 100%);
 }
 
 .square.selected {
