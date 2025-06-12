@@ -5,6 +5,10 @@ import king from "./king.js";
 import queen from "./queen.js";
 import knight from "./knight.js";
 import pawn from "./pawn.js";
+const AiColor = "black";
+const playerColor = "white";
+var turn = "white";
+var aiMove = getBestMove(board, "black", 3);
 
 function makearea(width = 3, height = 40, depth = 40, cl = "white") {
   const container = document.createElement('div');
@@ -71,8 +75,8 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
       const piece = board[row][col];
       if (piece) {
         if(piece.type === "rook") {
-            const piecetop = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
-            const piecebot = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
+            const piecetop = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
+            const piecebot = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
           const piecebase = document.createElement("div");
           piecebase.classList.add("piece", piece.color === "white" ? "white" : "black");
           piecetop.classList.add("top-rook");
@@ -83,8 +87,8 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
           square.appendChild(piecebase);
         }
         else if(piece.type === "bishop") {
-          const piecerig =  makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
-          const piecelef =  makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
+          const piecerig =  makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
+          const piecelef =  makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
           const piecebase = document.createElement("div");
           piecebase.classList.add("piece", piece.color === "white" ? "white" : "black");
           piecerig.classList.add("right-bishop");
@@ -95,10 +99,10 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
           square.appendChild(piecebase);
         }
         else if(piece.type === "king") {
-            const piecetop = makearea(3, 30, 40, piece.color === "white" ? "white" : "black");
-            const piecebot = makearea(3, 30, 40, piece.color === "white" ? "white" : "black");
-            const piecelef = makearea(3, 30, 40, piece.color === "white" ? "white" : "black");
-            const piecerig = makearea(3, 30, 40, piece.color === "white" ? "white" : "black");
+            const piecetop = makearea(3, 30, 70, piece.color === "white" ? "white" : "black");
+            const piecebot = makearea(3, 30, 70, piece.color === "white" ? "white" : "black");
+            const piecelef = makearea(3, 30, 70, piece.color === "white" ? "white" : "black");
+            const piecerig = makearea(3, 30, 70, piece.color === "white" ? "white" : "black");
           const piecebase = document.createElement("div");
           piecebase.classList.add("piece", piece.color === "white" ? "white" : "black");
           piecetop.classList.add("top-king");
@@ -114,10 +118,10 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
 
         }
         else if(piece.type === "queen") {
-          const piecetop = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
-          const piecebot = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
-          const piecelef = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
-          const piecerig = makearea(3, 40, 40, piece.color === "white" ? "white" : "black");
+          const piecetop = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
+          const piecebot = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
+          const piecelef = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
+          const piecerig = makearea(3, 40, 70, piece.color === "white" ? "white" : "black");
           const piecebase = document.createElement("div");
           piecebase.classList.add("piece", piece.color === "white" ? "white" : "black");
           piecetop.classList.add("top-queen");
@@ -133,7 +137,7 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
         }
         else if(piece.type === "knight") {
           for (let k = 1; k <= 6; k++) {
-            const knightPart = makearea(3, 20.94395, 40, piece.color === "white" ? "white" : "black");
+            const knightPart = makearea(3, 20.94395, 70, piece.color === "white" ? "white" : "black");
             knightPart.classList.add(`k${k}`);
             square.appendChild(knightPart);
           }
@@ -143,7 +147,7 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
           square.appendChild(piecebase);
         }
         else if(piece.type === "pawn") {
-          const piecebot = makearea(7, 7, 40, piece.color === "white" ? "white" : "black");
+          const piecebot = makearea(10, 10, 70, piece.color === "white" ? "white" : "black");
           const piecebase = document.createElement("div");
           piecebase.classList.add("piece", piece.color === "white" ? "white" : "black");
           piecebot.classList.add("bottom-pawn");
@@ -153,7 +157,6 @@ function renderChessBoard(selectedPiece = null, possibleMoves = []) {
         }
       }
       
-      // Add data attributes for event handling
       square.dataset.row = row;
       square.dataset.col = col;
 
@@ -175,10 +178,10 @@ function initiateChessBoard() {
   board[0][5] = { ...bishop, type: 'bishop', color: 'white', position: [0, 5] };
   board[7][2] = { ...bishop, type: 'bishop', color: 'black', position: [7, 2] };
   board[7][5] = { ...bishop, type: 'bishop', color: 'black', position: [7, 5] };
-  board[0][3] = { ...queen, type: 'queen', color: 'white', position: [0, 3] };
-  board[7][3] = { ...queen, type: 'queen', color: 'black', position: [7, 3] };
-  board[0][4] = { ...king, type: 'king', color: 'white', position: [0, 4] };
-  board[7][4] = { ...king, type: 'king', color: 'black', position: [7, 4] };
+  board[0][3] = { ...king, type: 'king', color: 'white', position: [0, 3] };
+  board[7][3] = { ...king, type: 'king', color: 'black', position: [7, 3] };
+  board[0][4] = { ...queen, type: 'queen', color: 'white', position: [0, 4] };
+  board[7][4] = { ...queen, type: 'queen', color: 'black', position: [7, 4] };
 
   for (let i = 0; i < 8; i++) {
     board[1][i] = { ...pawn, type: 'pawn', color: 'white', position: [1, i], hasMoved: false };
@@ -202,6 +205,13 @@ function move(to, board, piece) {
   piece.position = [toRow, toCol];
   board[toRow][toCol] = piece;
   piece.hasMoved = true;
+  turn = turn === "white" ? "black" : "white";
+  aiMove = getBestMove(board, AiColor, 4);
+  console.log("AI move:", aiMove);
+  if (aiMove && turn === AiColor) {
+    move(aiMove.to, board, board[aiMove.from[0]][aiMove.from[1]]);
+    renderChessBoard();
+}
   return true;
 }
 
@@ -230,7 +240,7 @@ boardElement.addEventListener("wheel", (e) => {
   e.preventDefault();
   const deltaY = e.deltaY;
   targetRotationX += deltaY * 0.1;
-  targetRotationX = Math.max(50, Math.min(80, targetRotationX));
+  targetRotationX = Math.max(30, Math.min(60, targetRotationX));
   if (!animationFrame) {
     animateRotation();
   }
@@ -267,5 +277,156 @@ boardElement.addEventListener("click", (e) => {
   }
 });
 
+// Right-click to mark a square
+boardElement.addEventListener("contextmenu", (e) => {
+  e.preventDefault();
+  const square = e.target.closest(".square");
+  if (!square) return;
+  square.classList.toggle("marked");
+});
 
-console.log(board);
+
+const pieceValues = {
+  pawn: 1,
+  knight: 3,
+  bishop: 3,
+  rook: 5,
+  queen: 9,
+  king: 100000
+};
+
+function evaluateBoard(board, color) {
+  let score = 0;
+
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = board[row][col];
+      if (piece) {
+        const baseValue = pieceValues[piece.type];
+        const pieceScore = baseValue ;
+        score += (piece.color === color ? 1 : -1) * pieceScore;
+      }
+    }
+  }
+
+  return score;
+}
+
+
+function cloneBoard(board) {
+  return board.map(row => row.map(cell => cell ? { ...cell, position: [...cell.position] } : null));
+}
+
+function getAllMoves(board, color) {
+  const moves = [];
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = board[row][col];
+      if (piece && piece.color === color) {
+        const legalMoves = piece.possibleMoves(board);
+        for (const move of legalMoves) {
+          moves.push({ from: [row, col], to: move, piece });
+        }
+      }
+    }
+  }
+  return moves;
+}  
+
+function makeMove(board, move) {
+  const newBoard = cloneBoard(board);
+  const { from, to, piece } = move;
+
+  const templates = {
+    rook,
+    bishop,
+    knight,
+    queen,
+    king,
+    pawn
+  };
+
+  const template = templates[piece.type];
+  if (!template) {
+    console.error("Unknown piece type:", piece.type);
+    return board;
+  }
+
+  const newPiece = {
+    ...template,
+    type: piece.type,
+    color: piece.color,
+    position: [...to],
+    hasMoved: true
+  };
+
+  newBoard[from[0]][from[1]] = null;
+  newBoard[to[0]][to[1]] = newPiece;
+
+  return newBoard;
+}
+
+
+function getBestMove(board, color, depth = 3) {
+  const isMaximizing = color === AiColor;
+  const result = minimax(board, depth, -Infinity, Infinity, isMaximizing, color);
+  return result.move;
+}
+
+function minimax(board, depth, alpha, beta, isMaximizing, playerColor) {
+  if (depth === 0) {
+    return { score: evaluateBoard(board, playerColor) };
+  }
+
+  const moves = orderMoves(getAllMoves(board, isMaximizing ? playerColor : oppositeColor(playerColor)));
+  let bestMove = null;
+
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (const move of moves) {
+      const newBoard = makeMove(board, move);
+      const evalScore = minimax(newBoard, depth - 1, alpha, beta, false, playerColor).score;
+      if (evalScore > maxEval) {
+        maxEval = evalScore;
+        bestMove = move;
+      }
+      alpha = Math.max(alpha, evalScore);
+      if (beta <= alpha) break;
+    }
+    return { score: maxEval, move: bestMove };
+  } else {
+    let minEval = Infinity;
+    for (const move of moves) {
+      const newBoard = makeMove(board, move);
+      const evalScore = minimax(newBoard, depth - 1, alpha, beta, true, playerColor).score;
+      if (evalScore < minEval) {
+        minEval = evalScore;
+        bestMove = move;
+      }
+      beta = Math.min(beta, evalScore);
+      if (beta <= alpha) break;
+    }
+    return { score: minEval, move: bestMove };
+  }
+}
+
+function orderMoves(moves) {
+  moves.sort((a, b) => {
+    const aValue = pieceValues[board[a.to[0]][a.to[1]]?.type] || 0;
+    const bValue = pieceValues[board[b.to[0]][b.to[1]]?.type] || 0;
+    return bValue - aValue;
+  });
+  return moves; 
+}
+
+function oppositeColor(color) {
+  return color === "white" ? "black" : "white";
+}
+aiMove = getBestMove(board, AiColor, 4);
+if (aiMove && turn === AiColor) {
+  move(aiMove.to, board, board[aiMove.from[0]][aiMove.from[1]]);
+  renderChessBoard();
+}
+
+
+
